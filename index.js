@@ -32,13 +32,17 @@ const baseURL = 'https://v3.openstates.org'
 // const result = await client.get(`${baseURL}/jurisdictions?classification=state`);
 
 const VA_ID = 'ocd-jurisdiction/country:us/state:va/government';
-const BILL_ID = 'ocd-bill/5ba17809-6f6f-44c0-9097-337f7e49f57a';
 
 http('myHttpFunction', async (req, res) => {
 
-    // const result = await client.get(`${baseURL}/bills?jurisdiction=${VA_ID}`);
+    const bills = await client.get(`${baseURL}/bills?jurisdiction=${VA_ID}`);
 
-    const result = await client.get(`${baseURL}/bills/${BILL_ID}?include=versions`);
+    const billsList = bills.data.results.map(b => `<li><a href="openstates1/${b.id}"><strong>${b.identifier}</strong> ${b.title}<a></li>`);
+
+    // remove leading slash from path
+    const billId = req.path !== '/' ? req.path.replace(/^\/+/, '') : bills.data.results[0].id;
+
+    const result = await client.get(`${baseURL}/bills/${billId}?include=versions`);
 
     const {versions} = result.data;
     const latestVersion = versions[versions.length - 1];
@@ -62,7 +66,8 @@ http('myHttpFunction', async (req, res) => {
 
     // Send an HTTP response
 
-    let response = htmlHeader + formatColumn({content: 'list of bills'});
+    // let response = htmlHeader + formatColumn({content: JSON.stringify(bills.data, null, 2)});
+    let response = htmlHeader + formatColumn({content: billsList.join('\n')});
     response = response + formatColumn({content: billText});
     response = response + formatColumn({content: billSummary}); 
     response = response + htmlFooter;

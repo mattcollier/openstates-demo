@@ -45,6 +45,23 @@
       .columns { flex-direction: column; }
     }
   </style>  
+  <script>
+    window.onload = function() {
+      // Get the current URL's protocol, host, and pathname
+      const currentProtocol = window.location.protocol;
+      const currentHost = window.location.host;
+      const currentPathname = window.location.pathname;
+
+      // Check if the current pathname is not already the root ("/")
+      if (currentPathname !== "/openstates1") {
+        // Construct the new URL with only the protocol and host
+        const newUrl = currentProtocol + "//" + currentHost + "/openstates1";
+
+        // Use history.replaceState to change the URL without reloading
+        history.replaceState(null, "", newUrl);
+      }
+    };    
+  </script>
 </head>
 <body>
 <main class="columns">

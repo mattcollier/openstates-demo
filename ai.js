@@ -16,7 +16,7 @@ export async function generateContent(
 
   const response = await ai.models.generateContent({
     model: 'gemini-2.0-flash',
-    contents: `Summarize the key information from the following HTML text: ${html}`,
+    contents: `The response should be an HTML document that will be inserted into an existing HTML document. Summarize the key information from the following HTML text: ${html}`,
   });
 
   console.log(response.text);

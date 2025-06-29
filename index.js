@@ -2,6 +2,24 @@ import {httpClient} from '@digitalbazaar/http-client';
 import {generateContent} from './ai.js';
 import { http } from '@google-cloud/functions-framework';
 
+import {readFile} from 'node:fs/promises';
+import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+
+// Resolve the directory this script is in (handy when running from elsewhere)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = join(__filename, '..');
+const htmlHeaderPath = join(__dirname, 'header.html');
+const htmlFooterPath = join(__dirname, 'footer.html');
+
+let htmlHeader;
+let htmlFooter;
+try {
+  htmlHeader = await readFile(htmlHeaderPath, 'utf8');
+  htmlFooter = await readFile(htmlFooterPath, 'utf8');
+} catch (err) {
+  console.error(`Failed to read ${htmlPath}:`, err);
+}
 
 const OPENSTATES_API_KEY = process.env.OPENSTATES_API_KEY;
 const headers = {'X-API-KEY': OPENSTATES_API_KEY};
@@ -43,5 +61,18 @@ http('myHttpFunction', async (req, res) => {
     const billSummary = await generateContent(billText);
 
     // Send an HTTP response
-    res.send(billSummary);
+
+    let response = htmlHeader + formatColumn({content: 'list of bills'});
+    response = response + formatColumn({content: billText});
+    response = response + formatColumn({content: billSummary}); 
+    response = response + htmlFooter;
+
+    res.send(response);
 });
+
+function formatColumn({content}) {
+  let result = `<section class="col">`;
+  result = result + content;
+  result = result + `</section>`;
+  return result;
+}

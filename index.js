@@ -1,5 +1,5 @@
 import {httpClient} from '@digitalbazaar/http-client';
-import {generateContent} from './ai.js';
+import {countTokens, generateContent} from './ai.js';
 import { http } from '@google-cloud/functions-framework';
 
 import {readFile} from 'node:fs/promises';
@@ -63,12 +63,13 @@ http('myHttpFunction', async (req, res) => {
     // console.log(billText.data);
 
     const billSummary = await generateContent(billText);
+    const tokenCount = await countTokens(billText);
 
     // Send an HTTP response
 
     // let response = htmlHeader + formatColumn({content: JSON.stringify(bills.data, null, 2)});
     let response = htmlHeader + formatColumn({content: billsList.join('\n')});
-    response = response + formatColumn({content: billText});
+    response = response + formatFullTextColumn({content: billText, tokenCount});
     response = response + formatColumn({content: billSummary}); 
     response = response + htmlFooter;
 
@@ -77,6 +78,14 @@ http('myHttpFunction', async (req, res) => {
 
 function formatColumn({content}) {
   let result = `<section class="col">`;
+  result = result + content;
+  result = result + `</section>`;
+  return result;
+}
+
+function formatFullTextColumn({content, tokenCount}) {
+  let result = `<section class="col">`;
+  result = result + `<h4>Token Count: ${tokenCount}</h4>`;
   result = result + content;
   result = result + `</section>`;
   return result;

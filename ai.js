@@ -23,3 +23,24 @@ export async function generateContent(
 
   return response.text;
 }
+
+export async function countTokens(
+  contents = '',
+  projectId = GOOGLE_CLOUD_PROJECT,
+  location = GOOGLE_CLOUD_LOCATION
+) {
+  const ai = new GoogleGenAI({
+    vertexai: true,
+    project: projectId,
+    location: location,
+  });
+
+  const response = await ai.models.countTokens({
+    model: 'gemini-2.0-flash',
+    contents,
+  });
+
+  // console.log(response);
+
+  return response.totalTokens;
+}

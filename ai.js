@@ -14,9 +14,16 @@ export async function generateContent(
     location: location,
   });
 
+  const prompt = 'You are a legislative analyst. Produce: ' +
+    '1. A 200-word abstract. ' + 
+    '2. Section-by-section bullets (≤15). ' +
+    // '3. A JSON array “key_changes” listing any amendments to existing statutes. ' +
+    'Use plain language; cite section numbers in parentheses. ' +
+    'The response should be an HTML document. The HTML should not include any style attributes. ';
+
   const response = await ai.models.generateContent({
     model: 'gemini-2.0-flash',
-    contents: `The response should be an HTML document that will be inserted into an existing HTML document. Summarize the key information from the following HTML text: ${html}`,
+    contents: `${prompt} This is the HTML document to be summarized: ${html}`,
   });
 
   console.log(response.text);
